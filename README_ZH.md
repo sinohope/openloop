@@ -38,7 +38,7 @@ Callateral Vault Account：简写为CVA。当用户U需要映射资产到交易�
 
 # API  设计
 
-## Sinohope->Exchange
+## Custody->Exchange
 
 ### /exchange/v1/connect
 
@@ -94,7 +94,7 @@ tag
 description: get settlement list of the collateral id
 method：GET
 query parameter：
-txId：sinohope tx id
+txId：custody tx id
 collateralId: collateral account id
 response:
 
@@ -138,25 +138,25 @@ Response:
 Description: send settlement request to exchange, for
 Method：POST
 Query parameter：
-txId required：sinohope tx id
+txId required：custody tx id
 collateralId required: collateral account id
 ```
 
-## Exchange->Sinohope
+## Exchange->Custody
 
 ### /collateral/v1/transactions
 
 ```JSON
-Description: get status of sinohope tx
+Description: get status of custody tx
 Method：GET
 Query parameter：
-txId requred：sinohope tx id
+txId requred：custody tx id
 ```
 
 ### /collateral/v1/settlement
 
 ```JSON
-Description: send settlement request to sinohope, for the collateralId
+Description: send settlement request to custody, for the collateralId
 Method：POST
 Query parameter：
 collateralId required: collateral account id
