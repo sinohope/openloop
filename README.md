@@ -10,6 +10,7 @@
 [简体中文版本](./README_ZH.md)
 
 
+
 # Glossary
 
 
@@ -43,7 +44,7 @@ Collateral Vault Account: Abbreviated as CVA. When User U needs to map assets to
 
 # API  Spec
 
-## Sinohope->Exchange
+## Custody->Exchange
 
 ### /exchange/v1/connect
 
@@ -99,7 +100,7 @@ tag
 description: get settlement list of the collateral id
 method：GET
 query parameter：
-txId：sinohope tx id
+txId：custody tx id
 collateralId: collateral account id
 response:
 
@@ -137,16 +138,16 @@ enum of settlement status
 Description: send settlement request to exchange, for
 Method：POST
 Query parameter：
-txId required：sinohope tx id
+txId required：custody tx id
 collateralId required: collateral account id
 ```
 
-## Exchange->Sinohope
+## Exchange->Custody
 
 ### /collateral/v1/transactions
 
 ```JSON
-Description: get status of sinohope tx
+Description: get status of custody tx
 Method：GET
 Query parameter：
 txId requred：sinohope tx id
