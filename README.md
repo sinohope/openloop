@@ -42,7 +42,7 @@ Callateral Vault Account：简写为CVA。当用户U需要映射资产到交易�
 
 ### /exchange/v1/connect
 
-```JSON
+```
 Description: connect the colleteralId with appkey
 Method: POST
 Query parameter：
