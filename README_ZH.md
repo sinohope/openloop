@@ -1,47 +1,42 @@
-# Changelog
+# Versions
 
 | 版本 | log           | 时间       | 修改人 |
 | ---- | ------------- | ---------- | ------ |
 | v1.0 | first version | 2023-03-12 | kevin  |
+|      |               |            |        |
+|      |               |            |        |
 
 
 
-# Versions
-[简体中文版本](./README_ZH.md)
+# 名词解析
 
+角色：用户 U、交易所 E、托管平台C。
 
-# Glossary
+Main Exchange Account：简写为 MEA。是用户U 在交易所开设的一个账户，通常使用 appkey 来唯一标识。
 
+Callateral Vault Account：简写为CVA。当用户U需要映射资产到交易所E，在托管平台C上创建 CVA。CVA 与MEA 实现一一映射。CVA 的唯一 ID 是 collateral_Id。
 
-Roles: User U, Exchange E, Custody Platform C.
+# 核心流程
 
-Main Exchange Account: Abbreviated as MEA. It is an account opened by User U on the exchange E, usually uniquely identified by an appkey.
-
-Collateral Vault Account: Abbreviated as CVA. When User U needs to map assets to Exchange E, a CVA is created on Custody Platform C. CVA and MEA achieve a one-to-one mapping. The unique ID of CVA is collateral_Id.
-
-
-
-# Main Steps
-
-## Initiate
+## 初始化
 
 ![](./images/setup_cva_share.png)
 
 ![](./images/setup_seq.png)
 
-## Deposit
+## 充值
 
 ![](./images/deposit.png)
 
-## Settlement
+## 结算
 
 ![](./images/settlement.png)
 
-## Withdrawal
+## 提现
 
 ![](./images/withdraw.png)
 
-# API  Spec
+# API  设计
 
 ## Sinohope->Exchange
 
@@ -128,7 +123,13 @@ Query parameter：
 settlementId required: settlement id
 
 Response:
-enum of settlement status
+"NOT_FOUND" 
+"PROCESSING" 
+"CANCELLED" 
+"FAILED" 
+"PENDING_MANUAL_APPROVAL" 
+"PENDING_SERVICE_MANUAL_APPROVAL" 
+"REJECTED" "COMPLETED"
 ```
 
 ### /exchange/v1/settlement
