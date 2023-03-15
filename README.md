@@ -1,6 +1,6 @@
 # Changelog
 
-| 版本 | log           | 时间       | 修改人 |
+| version | log           | date       | modifier |
 | ---- | ------------- | ---------- | ------ |
 | v1.0 | first version | 2023-03-12 | kevin  |
 
