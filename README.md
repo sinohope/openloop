@@ -1,6 +1,6 @@
 # Changelog
 
-| version | log           | date       | modifier |
+| Version | Log           | Date       | Modifier |
 | ---- | ------------- | ---------- | ------ |
 | v1.0 | first version | 2023-03-12 | kevin  |
 
