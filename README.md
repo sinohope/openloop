@@ -48,7 +48,7 @@ Collateral Vault Account: Abbreviated as CVA. When User U needs to map assets to
 
 ### /exchange/v1/connect
 
-```JSON
+```
 Description: connect the colleteralId with appkey
 Method: POST
 Query parameter：
@@ -64,7 +64,7 @@ rejectReason,
 
 ### /exchange/v1/address
 
-```JSON
+```
 Description: notify the exchange to collateral asset address
 Method: POST
 Body parameter：
@@ -82,7 +82,7 @@ tag,
 
 ### /exchange/v1/withdraw
 
-```JSON
+```
 Description: initiate withdrawal request from CVA, if exchange confirm, it will reduce the customer available amount in MEA
 Method: POST
 Body parameter：
@@ -96,7 +96,7 @@ tag
 
 ### /exchange/v1/settlement/list
 
-```JSON
+```
 description: get settlement list of the collateral id
 method：GET
 query parameter：
@@ -122,7 +122,7 @@ to_collateral:[
 
 ### /exchange/v1/settlement/status
 
-```JSON
+```
 Description: get status of a settlement
 Method：GET
 Query parameter：
@@ -134,7 +134,7 @@ enum of settlement status
 
 ### /exchange/v1/settlement
 
-```JSON
+```
 Description: send settlement request to exchange, for
 Method：POST
 Query parameter：
@@ -146,7 +146,7 @@ collateralId required: collateral account id
 
 ### /collateral/v1/transactions
 
-```JSON
+```
 Description: get status of custody tx
 Method：GET
 Query parameter：
@@ -155,7 +155,7 @@ txId requred：sinohope tx id
 
 ### /collateral/v1/settlement
 
-```JSON
+```
 Description: send settlement request to sinohope, for the collateralId
 Method：POST
 Query parameter：
