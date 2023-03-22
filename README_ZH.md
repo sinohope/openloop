@@ -139,7 +139,6 @@ Response:
 Description: send settlement request to exchange, for
 Method：POST
 Query parameter：
-txId required：custody tx id
 collateralId required: collateral account id
 ```
 
