@@ -16,7 +16,7 @@
 
 Main Exchange Account：简写为 MEA。是用户U 在交易所开设的一个账户，通常使用 appkey 来唯一标识。
 
-Callateral Vault Account：简写为CVA。当用户U需要映射资产到交易所E，在托管平台C上创建 CVA。CVA 与MEA 实现一一映射。CVA 的唯一 ID 是 collateral_Id。
+Callateral Vault Account：简写为CVA。当用户U需要映射资产到交易所E，在托管平台C上创建 CVA。CVA 与MEA 实现一一映射。CVA 的唯一 ID 是 collateralId。
 
 # 核心流程
 
