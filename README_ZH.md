@@ -200,7 +200,7 @@ amount               string            Y                用户提币金额
 fromAddress          string            Y                特定的CVA地址（一个cva账户下同一个网络，可能存在多个地址）
 fromTag              string or null    N                特定CVA地址对应tag
 toAddress            string            Y                提币目标地址
-toTag                string            N                提币目标地址tag
+toTag                string or null    N                提币目标地址tag
 
 响应参数
 参数名                类型              是否必须           描述
