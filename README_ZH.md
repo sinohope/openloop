@@ -195,8 +195,10 @@ status               boolean           Y                枚举：False/True (失
 参数名                类型              是否必须           描述
 collateralId         string            Y                CVA账户的唯一标识
 txId                 string            Y                SinoHope定义的提币订单的唯一标识（如提币上链失败，仍然使用相同的txId发起提币请求）
-assetId              string            Y                SinoHope的币种标识（已确定了链）
+assetId              string            Y                SinoHope的币种标识
 amount               string            Y                用户提币金额
+fromAddress          string            Y                特定的CVA地址（一个cva账户下同一个网络，可能存在多个地址）
+fromTag              string or null    N                特定CVA地址对应tag
 toAddress            string            Y                提币目标地址
 toTag                string            N                提币目标地址tag
 
@@ -240,7 +242,7 @@ to_collateral        array             Y                交易所向CVA账户转
 > assetid            string            Y                SinoHope的资产标识（对于一币多链的场景，按照用户绑定地址时传入的preferedNetwork字段，合并结算资产）
 > amount             string            Y                结算金额
 > toAddress          string            Y                CVA地址
-> toTag              string or null    N                CVA地址tag，不会有共用地址的情况，这个字段是否可以删掉？
+> toTag              string or null    N                CVA地址tag
 
 响应参数
 参数名                类型              是否必须           描述
