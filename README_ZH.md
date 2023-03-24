@@ -69,9 +69,9 @@ collateralId         string            Y                CVA账户的唯一标识
 assets               array             Y                CVA账户创建时，默认生成几个常用地址，并一次性通知交易所；后续基于用户操作，按需通知新增地址；
 > currency           string            Y                交易所定义的币种标识
 > network            string            Y                交易所定义的链标识
-> assetId            string            Y                SinoHope定义的资产标识（不同链的相同币种，资产标识不同）
+> assetId            string            Y                SinoHope定义的资产标识（不同链的相同币种，资产标识不同，例如USDT_ETH, USDT_TRON）
 > address            string            Y                SinoHope为用户的CVA账户分配的地址
-> tag                string or null    N                SinoHope为用户的CVA账户分配的tag；不会有共用地址的情况，这个字段是否可以删掉？(待定)
+> tag                string or null    N                SinoHope为用户的CVA账户分配的tag
 
 响应参数
 参数名                类型              是否必须           描述
@@ -105,6 +105,7 @@ perferedNetwork      string            Y                交易所向CVA账户结
 
 响应参数
 参数名                类型              是否必须           描述
+status               boolean           Y                枚举：False/True (失败/成功)；
 ```
 
 ### POST /exchange/v1/settlement/list
@@ -130,10 +131,9 @@ to_collateral        array             Y                交易所向CVA账户转
 > assetid            string            Y                SinoHope的资产标识（对于一币多链的场景，按照用户绑定地址时传入的preferedNetwork字段，合并结算资产）
 > amount             string            Y                结算金额
 > toAddress          string            Y                CVA地址
-> toTag              string or null    N                CVA地址tag，不会有共用地址的情况，这个字段是否可以删掉？（待定）
-```
+> toTag              string or null    N                CVA地址tag
 
-### POST /exchange/v1/settlement/confirm #### TBD
+### POST /exchange/v1/settlement/confirm
 
 ```
 用户确认账单后，SinoHope通知交易所可开始向CVA地址发起结算
@@ -142,11 +142,11 @@ to_collateral        array             Y                交易所向CVA账户转
 参数名                类型              是否必须           描述
 collateralId         string            Y                CVA账户的唯一标识
 settlementId         string            Y                一个结算批次的唯一标识
-assetId              string            N                适用于用户部分确认的场景（待定）
+assetId              string            N                适用于用户部分确认的场景
 
 响应参数
 参数名                类型              是否必须           描述
-
+status               boolean           Y                枚举：False/True (失败/成功)；
 ```
 
 ### GET /exchange/v1/settlement/status
@@ -181,6 +181,7 @@ data                 array             Y                返回该批次内的多
 
 响应参数
 参数名                类型              是否必须           描述
+status               boolean           Y                枚举：False/True (失败/成功)；
 ```
 
 ### POST /exchange/v1/withdraw
@@ -192,13 +193,14 @@ data                 array             Y                返回该批次内的多
 参数名                类型              是否必须           描述
 collateralId         string            Y                CVA账户的唯一标识
 txId                 string            Y                SinoHope定义的提币订单的唯一标识（如提币上链失败，仍然使用相同的txId发起提币请求）
-assetId              string            Y                SinoHope的币种标识
+assetId              string            Y                SinoHope的币种标识（已确定了链）
 amount               string            Y                用户提币金额
-fromAddress          string            Y                用户CVA地址（同一币链，多个地址的情况）
-fromTag              string            Y                用户CVA地址的tag
+toAddress            string            Y                提币目标地址
+toTag                string            N                提币目标地址tag
 
 响应参数
 参数名                类型              是否必须           描述
+status               boolean           Y                枚举：False/True (失败/成功)；
 ```
 
 
