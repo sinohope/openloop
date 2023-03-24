@@ -133,6 +133,7 @@ to_collateral        array             Y                交易所向CVA账户转
 > amount             string            Y                结算金额
 > toAddress          string            Y                CVA地址
 > toTag              string or null    N                CVA地址tag
+```
 
 ### POST /exchange/v1/settlement/confirm
 
