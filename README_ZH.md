@@ -2,8 +2,8 @@
 
 | 版本 | log           | 时间       | 修改人 |
 | ---- | ------------- | ---------- | ------ |
-| v1.0 | first version | 2023-03-12 | kevin  |
-| v1.1 | second version| 2023-03-24 | kevin  |
+| v1.0.0 | first version | 2023-03-12 | kevin  |
+| v1.1.0 | second version| 2023-03-24 | kevin  |
 
 # Versions
 
