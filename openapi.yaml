@@ -1,0 +1,560 @@
+openapi: 3.0.0
+info:
+  title: OpenLoop API
+  version: 1.1.0
+  description: 
+    $ref: description.md
+tags:
+  - name: Custody->Exchange
+    description: Custody calls Exchange
+  - name: Exchange->Custody
+    description: Exchange calls Custody
+paths:
+  /exchange/v1/connect:
+    post:
+      tags:
+        - Custody->Exchange
+      description: Connect CVA account with MEA account
+      summary: /exchange/v1/connect
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collateralId:
+                  type: string
+                  description: Unique identifier for the CVA account
+                exchangeAccountId:
+                  type: string
+                  description: Unique identifier for the MEA account to be bound, API KEY
+              required:
+                - collateralId
+                - exchangeAccountId
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Binding status, False/True (failed/success)
+                  rejectReason:
+                    type: string
+                    nullable: true
+                    description: Reason for rejection if binding is denied by the exchange; can be null if the validation passes
+
+  /exchange/v1/address:
+    post:
+      tags:
+        - Custody->Exchange
+      description: Notify exchange to add new addresses for the CVA account
+      summary: /exchange/v1/address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestId:
+                  type: string
+                  description: Identifier for this binding request
+                collateralId:
+                  type: string
+                  description: Unique identifier for the CVA account
+                assets:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      currency:
+                        type: string
+                        description: Currency identifier defined by the exchange
+                      network:
+                        type: string
+                        description: Chain identifier defined by the exchange
+                      assetId:
+                        type: string
+                        description: Asset identifier defined by SinoHope (different asset identifiers for the same currency on different chains, e.g., USDT_ETH, USDT_TRON)
+                      address:
+                        type: string
+                        description: Address allocated by SinoHope for the user's CVA account
+                      tag:
+                        type: string
+                        nullable: true
+                        description: Tag allocated by SinoHope for the user's CVA account
+                    required:
+                      - currency
+                      - network
+                      - assetId
+                      - address
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+                    description: Address reception status, False/True (failed/success)
+
+  /exchange/v1/address/status:
+    get:
+      tags:
+        - Custody->Exchange
+      description: Check the status of the address addition request
+      summary: /exchange/v1/address/status
+      parameters:
+        - name: requestId
+          in: query
+          required: true
+          description: Identifier for this binding request
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Address addition status, False/True (failed/success)
+
+  /exchange/v1/settlement/network:
+    post:
+      tags:
+        - Custody->Exchange
+      description: Set the default settlement network for CVA addresses (multi-chain scenario)
+      summary: /exchange/v1/settlement/network
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collateralId:
+                  type: string
+                  description: Unique identifier for the CVA account
+                assetId:
+                  type: string
+                  description: SinoHope-defined asset identifier
+                perferedNetwork:
+                  type: string
+                  description: Default settlement network for the CVA account, specified by the user on SinoHope side (previously confirmed with the exchange)
+              required:
+                - collateralId
+                - assetId
+                - perferedNetwork
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Status of setting the preferred network, False/True (failed/success)
+
+  /exchange/v1/settlement/list:
+    post:
+      tags:
+        - Custody->Exchange
+      description: Request settlement details from the exchange for user-initiated settlements
+      summary: /exchange/v1/settlement/list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collateralId:
+                  type: string
+                  description: Unique identifier for the CVA account
+                settlementId:
+                  type: string
+                  description: Unique identifier for a settlement batch
+                assetId:
+                  type: string
+                  nullable: true
+                  description: For user-initiated single-currency settlements
+              required:
+                - collateralId
+                - settlementId
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  settlementId_ex:
+                    type: string
+                    description: Exchange-side unique identifier for the settlement batch
+                  to_exchange:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        assetid:
+                          type: string
+                          description: SinoHope's asset identifier (for multi-chain scenarios, the exchange needs to split the details based on the CVA account balance)
+                        amount:
+                          type: string
+                          description: Settlement amount
+                        toAddress:
+                          type: string
+                          description: Exchange's receiving address
+                        toTag:
+                          type: string
+                          nullable: true
+                          description: Exchange's receiving address tag
+                      required:
+                        - assetid
+                        - amount
+                        - toAddress
+                  to_collateral:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        assetid:
+                          type: string
+                          description: SinoHope's asset identifier (for multi-chain scenarios, assets should be merged for settlement based on the user's preferred network)
+                        amount:
+                          type: string
+                          description: Settlement amount
+                        toAddress:
+                          type: string
+                          description: CVA address
+                        toTag:
+                          type: string
+                          nullable: true
+                          description: CVA address tag
+                      required:
+                        - assetid
+                        - amount
+                        - toAddress
+
+  /exchange/v1/settlement/confirm:
+    post:
+      tags:
+        - Custody->Exchange
+      description: Notify the exchange to initiate settlement to CVA account after user confirmation
+      summary: /exchange/v1/settlement/confirm
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collateralId:
+                  type: string
+                  description: Unique identifier for the CVA account
+                settlementId:
+                  type: string
+                  description: Unique identifier for a settlement batch
+                assetId:
+                  type: string
+                  nullable: true
+                  description: For user-initiated partial confirmation scenarios
+              required:
+                - collateralId
+                - settlementId
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Settlement initiation status, False/True (failed/success)
+
+  /exchange/v1/settlement/status:
+    get:
+      tags:
+        - Custody->Exchange
+      description: Query the settlement progress from SinoHope to the exchange
+      summary: /exchange/v1/settlement/status
+      parameters:
+        - name: settlementId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for a settlement batch
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        assetid:
+                          type: string
+                          description: Asset list transferred from the exchange to CVA
+                        status:
+                          type: string
+                          description: Settlement status, enumeration to be determined
+                        txHash:
+                          type: string
+                          nullable: true
+                          description: Transaction hash, if the transfer is completed
+
+  /exchange/v1/settlement/finish:
+    post:
+      tags:
+        - Custody->Exchange
+      description: Notify the exchange after SinoHope settlement is completed
+      summary: /exchange/v1/settlement/finish
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                settlementId:
+                  type: string
+                  description: Unique identifier for a settlement batch
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      assetid:
+                        type: string
+                        description: Asset list transferred from CVA account to the exchange
+                      status:
+                        type: string
+                        description: Settlement status, enumeration to be determined
+                      txHash:
+                        type: string
+                        nullable: true
+                        description: Transaction hash, if the transfer is completed
+              required:
+                - settlementId
+                - data
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Status of the settlement finish notification, False/True (failed/success)
+
+  /exchange/v1/withdraw:
+    post:
+      tags:
+        - Custody->Exchange
+      description: Request authorization from the exchange after the user initiates a withdrawal from the CVA account
+      summary: /exchange/v1/withdraw
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collateralId:
+                  type: string
+                  description: Unique identifier for the CVA account
+                txId:
+                  type: string
+                  description: Unique identifier for the withdrawal order defined by SinoHope (if the withdrawal fails, the same txId will be used to initiate the withdrawal request)
+                assetId:
+                  type: string
+                  description: SinoHope-defined currency identifier
+                amount:
+                  type: string
+                  description: Withdrawal amount of the user
+                fromAddress:
+                  type: string
+                  description: Specific CVA address (multiple addresses may exist under the same network for a CVA account)
+                fromTag:
+                  type: string
+                  nullable: true
+                  description: Tag corresponding to the specific CVA address
+                toAddress:
+                  type: string
+                  description: Withdrawal target address
+                toTag:
+                  type: string
+                  nullable: true
+                  description: Withdrawal target address tag
+              required:
+                - collateralId
+                - txId
+                - assetId
+                - amount
+                - fromAddress
+                - toAddress
+      responses:
+        '200':
+          description: Successful response
+          content:
+             application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Status of the withdrawal request, False/True (failed/success)
+
+  /collateral/v1/address/status:
+    post:
+      tags:
+        - Exchange->Custody
+      description: Notify SinoHope after the exchange asynchronously processes the added address request
+      summary: /collateral/v1/address/status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestId:
+                  type: string
+                  description: Identifier for the binding request
+              required:
+                - requestId
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Status of the address request processing, False/True (failed/success)
+
+  /collateral/v1/settlement:
+    post:
+      tags:
+        - Exchange->Custody
+      description: Notify SinoHope of the settlement details list after the exchange initiates a settlement
+      summary: /collateral/v1/settlement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                settlementId_ex:
+                  type: string
+                  description: Exchange-side settlement batch identifier
+                collateralId:
+                  type: string
+                  description: Unique identifier for the CVA account
+                to_exchange:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      assetid:
+                        type: string
+                        description: SinoHope asset identifier (for multi-chain scenarios, the exchange needs to split the details based on the balance of the user's CVA address)
+                      amount:
+                        type: string
+                        description: Settlement amount
+                      toAddress:
+                        type: string
+                        description: Exchange receiving address
+                      toTag:
+                        type: string
+                        nullable: true
+                        description: Exchange receiving address tag
+                to_collateral:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      assetid:
+                        type: string
+                        description: SinoHope asset identifier (for multi-chain scenarios, the exchange needs to merge the settlement assets based on the user's preferedNetwork field when binding the address)
+                      amount:
+                        type: string
+                        description: Settlement amount
+                      toAddress:
+                        type: string
+                        description: CVA address
+                      toTag:
+                        type: string
+                        nullable: true
+                        description: CVA address tag
+              required:
+                - settlementId_ex
+                - collateralId
+                - to_exchange
+                - to_collateral
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  settlementId:
+                    type: string
+                    description: Unique identifier for a settlement batch
+
+  /collateral/v1/transactions:
+    get:
+      tags:
+        - Exchange->Custody
+      description: Query the progress of CVA account withdrawal based on the withdrawal order number initiated by SinoHope
+      summary: /collateral/v1/transactions
+      parameters:
+        - name: txId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the withdrawal order
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: Settlement status, enumeration to be determined
+                  txHash:
+                    type: string
+                    nullable: true
