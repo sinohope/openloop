@@ -288,6 +288,70 @@ paths:
                     type: boolean
                     description: Settlement initiation status, False/True (failed/success)
 
+  /exchange/v1/settlement/unsigntxs:
+    post:
+      tags:
+        - Custody->Exchange
+      description: Sync the unsigned transactions (which are transfering funds from the CVA to the exchange's settlement address) about a specific settlement to the exchange, so the exchange can check the hash-to-be-signed when sinohope launch a mpc-signing.
+      summary: /exchange/v1/settlement/unsigntxs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collateralId:
+                  type: string
+                  description: Unique identifier for the CVA account
+                settlementId:
+                  type: string
+                  description: Unique identifier for a settlement batch
+                cvaTxs:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      assetid:
+                        type: string
+                        description: SinoHope's asset identifier (for multi-chain scenarios, assets should be merged for settlement based on the user's preferred network)
+                      network:
+                        type: string
+                        description: the network of this transaction
+                      txType:
+                        type: string
+                        description: Transaction type. Different block chains have different logics, and there may be different transaction types/formats within a same block chain.
+                      hashToBeSigned:
+                        type: string
+                        description: Unsigned transaction hash. Note that this is not the final transaction hash.
+                      data:
+                        type: object
+                        description: Unsigned transaction detail data, which needs to determine the data fields based on assetid, network, and txType.
+                        properties:
+                          field1:
+                            type: string
+                            description: TODO...
+                    required:
+                      - assetid
+                      - network
+                      - hashToBeSigned
+                      - data
+              required:
+                - collateralId
+                - settlementId
+                - cvaTxs
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Sync unsigned transactions status, False/True (failed/success)
+
   /exchange/v1/settlement/status:
     get:
       tags:
