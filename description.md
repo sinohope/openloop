@@ -4,6 +4,7 @@
 | ---- | ------------- | ---------- | ------ |
 | v1.0.0 | first version | 2023-03-12 | Kevin  |
 | v1.1.0 | second version| 2023-03-24 | Kevin  |
+| v1.2.0 | third version | 2023-05-04 | Darlzan  |
 
 
 # Glossary

@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: OpenLoop API
-  version: 1.1.0
+  version: 1.2.0
   description: 
     $ref: description.md
 tags:
@@ -9,6 +9,10 @@ tags:
     description: Custody calls Exchange
   - name: Exchange->Custody
     description: Exchange calls Custody
+  - name: Exchange->E-Custody
+    description: Exchange's business system calls the mpc custody service (which is run by the exchange) internally
+  - name: E-Custody->Exchange
+    description: The mpc custody service (which is run by the exchange) calls Exchange's business system internally
 paths:
   /exchange/v1/connect:
     post:
@@ -47,6 +51,8 @@ paths:
                     type: string
                     nullable: true
                     description: Reason for rejection if binding is denied by the exchange; can be null if the validation passes
+                required:
+                  - status
 
   /exchange/v1/address:
     post:
@@ -93,6 +99,9 @@ paths:
                       - network
                       - assetId
                       - address
+              required:
+                - requestId
+                - collateralId
       responses:
         '200':
           description: Successful response
@@ -102,8 +111,10 @@ paths:
                 type: object
                 properties:
                   received:
-                    type: boolean
-                    description: Address reception status, False/True (failed/success)
+                    type: int
+                    description: Address reception status,enum, 0 asynchronously processing, 1 Failed, 2 Success.
+                required:
+                  - received
 
   /exchange/v1/address/status:
     get:
@@ -129,6 +140,44 @@ paths:
                   status:
                     type: boolean
                     description: Address addition status, False/True (failed/success)
+                required:
+                  - status
+
+  /exchange/v1/mpc/pubkey:
+    post:
+      tags:
+        - Custody->Exchange
+      description: Notify exchange to add relationship between CVA account and the root mpc public key (If the Exchange keeps one mpc key share)
+      summary: /exchange/v1/mpc/pubkey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collateralId:
+                  type: string
+                  description: Unique identifier for the CVA account
+                cmrkPK:
+                  type: string
+                  description: The public key of the CVA's root mpc key
+              required:
+                - collateralId
+                - cmrkPK
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Status of setting the related public key, False/True (failed/success)
+                required:
+                  - status
 
   /exchange/v1/settlement/network:
     post:
@@ -167,6 +216,8 @@ paths:
                   status:
                     type: boolean
                     description: Status of setting the preferred network, False/True (failed/success)
+                required:
+                  - status
 
   /exchange/v1/settlement/list:
     post:
@@ -287,70 +338,8 @@ paths:
                   status:
                     type: boolean
                     description: Settlement initiation status, False/True (failed/success)
-
-  /exchange/v1/settlement/unsigntxs:
-    post:
-      tags:
-        - Custody->Exchange
-      description: Sync the unsigned transactions (which are transfering funds from the CVA to the exchange's settlement address) about a specific settlement to the exchange, so the exchange can check the hash-to-be-signed when sinohope launch a mpc-signing.
-      summary: /exchange/v1/settlement/unsigntxs
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                collateralId:
-                  type: string
-                  description: Unique identifier for the CVA account
-                settlementId:
-                  type: string
-                  description: Unique identifier for a settlement batch
-                cvaTxs:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      assetid:
-                        type: string
-                        description: SinoHope's asset identifier (for multi-chain scenarios, assets should be merged for settlement based on the user's preferred network)
-                      network:
-                        type: string
-                        description: the network of this transaction
-                      txType:
-                        type: string
-                        description: Transaction type. Different block chains have different logics, and there may be different transaction types/formats within a same block chain.
-                      hashToBeSigned:
-                        type: string
-                        description: Unsigned transaction hash. Note that this is not the final transaction hash.
-                      data:
-                        type: object
-                        description: Unsigned transaction detail data, which needs to determine the data fields based on assetid, network, and txType.
-                        properties:
-                          field1:
-                            type: string
-                            description: TODO...
-                    required:
-                      - assetid
-                      - network
-                      - hashToBeSigned
-                      - data
-              required:
-                - collateralId
-                - settlementId
-                - cvaTxs
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    description: Sync unsigned transactions status, False/True (failed/success)
+                required:
+                  - status
 
   /exchange/v1/settlement/status:
     get:
@@ -434,6 +423,8 @@ paths:
                   status:
                     type: boolean
                     description: Status of the settlement finish notification, False/True (failed/success)
+                required:
+                  - status
 
   /exchange/v1/withdraw:
     post:
@@ -492,6 +483,80 @@ paths:
                   status:
                     type: boolean
                     description: Status of the withdrawal request, False/True (failed/success)
+                  rejectReason:
+                    type: string
+                    nullable: true
+                    description: The reject reason if the status is False
+                required:
+                  - status
+
+  /exchange/v1/mpc/join:
+    post:
+      tags:
+        - Custody->Exchange
+      description: Notify the exchange's mpc key share custody service to join an mpc business initiated by user
+      summary: /exchange/v1/mpc/join
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collateralId:
+                  type: string
+                  description: Unique identifier for the CVA account
+                mpcType:
+                  type: string
+                  description: MPC business type, enumeration of "DKG", "Refresh", "Delete"
+                userId:
+                  type: string
+                  description: A data needed for locating the mpc key share
+                cryptography:
+                  type: string
+                  description: Either "ecdsa-secp256k1" or "eddsa-ed25519"
+                timeToLive:
+                  type: int
+                  description: The total TTL of this mpc business
+                targetUserId:
+                  type: string
+                  nullable: true
+                  description: The result will be connected to this target user id (null if the mpcType is DKG)
+                cmrkPK:
+                  type: string
+                  nullable: true
+                  description: The public key to identifies an mpc key share (null if the mpcType is DKG, otherwise it's required)
+                path:
+                  type: string
+                  nullable: true
+                  description: The path to derive the target account.
+                signatureX1:
+                  type: string
+                  nullable: true
+                  description: The user's signature to the mpc parameter data, which is signed by the user's mpc key share.(null if the mpcType is DKG, otherwise it's required)
+              required:
+                - collateralId
+                - mpcType
+                - userId
+                - cryptography
+                - timeToLive
+      responses:
+        '200':
+          description: Successful response
+          content:
+             application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Status of the request, False/True (failed/success)
+                  failedReason:
+                    type: string
+                    nullable: true
+                    description: The failed reason if the status is False
+                required:
+                  - status
 
   /collateral/v1/address/status:
     post:
@@ -522,6 +587,8 @@ paths:
                   status:
                     type: boolean
                     description: Status of the address request processing, False/True (failed/success)
+                required:
+                  - status
 
   /collateral/v1/settlement:
     post:
@@ -594,6 +661,143 @@ paths:
                   settlementId:
                     type: string
                     description: Unique identifier for a settlement batch
+                required:
+                  - settlementId
+
+  /collateral/v1/settlement/tx/build:
+    post:
+      tags:
+        - Exchange->Custody
+      description: Build an unsigned transaction acording the settlementId and assetId (the transfer amount will be filled by the user confirmed settlement details)
+      summary: /collateral/v1/settlement/tx/build
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                settlementId:
+                  type: string
+                  description: Unique identifier for a settlement batch
+                assetId:
+                  type: string
+                  description: SinoHope-defined currency identifier
+                network:
+                  type: string
+                  description: Chain identifier defined by the exchange
+                address:
+                  type: string
+                  description: The receiving address of the exchange 
+              required:
+                - settlementId
+                - assetId
+                - network
+                - address
+      responses:
+        '200':
+          description: Successful response
+          content:
+             application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Status of the transaction build, False/True (failed/success)
+                  tx:
+                    type: object
+                    description: Not null if the status is true
+                    properties:
+                      transactionId:
+                        type: string
+                        description: A unique identifier of this transaction( not a transaction hash)
+                      network:
+                        type: string
+                        description: the network of this transaction
+                      txType:
+                        type: string
+                        description: Transaction type. Different block chains have different logics, and there may be different transaction types/formats within a same block chain.
+                      hashToBeSigned:
+                        type: string
+                        description: Unsigned transaction hash. Note that this is not the final transaction hash.
+                      data:
+                        type: object
+                        description: Unsigned transaction detail data, which needs to determine the data fields based on network, and txType.
+                        properties:
+                          field1:
+                            type: string
+                            description: TODO...
+                    required:
+                      - transactionId
+                      - network
+                      - txType
+                      - hashToBeSigned
+                      - data
+                  fromAccount:
+                    type: object
+                    description: The information about the "from" account of the current transaction. Not null if the status is true.
+                    properties:
+                      userId:
+                        type: string
+                        description: A data needed for initiating an mpc signing
+                      cmrkPK:
+                        type: string
+                        description: The public key to identifies an mpc key share
+                      path:
+                        type: string
+                        description: The path to derive the "from" account.
+                    required:
+                      - userId
+                      - cmrkPK
+                      - path
+                  failedReason:
+                    type: string
+                    nullable: true
+                    description: The failed reason if the status is False
+                required:
+                  - status
+
+  /collateral/v1/settlement/tx/broadcast:
+    post:
+      tags:
+        - Exchange->Custody
+      description: Broadcast a signed transaction
+      summary: /collateral/v1/settlement/tx/broadcast
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transactionId:
+                  type: string
+                  description: The unique identifier of the transaction defined by SinoHope
+                formattedSigs:
+                  type: string
+                  description: The final signature formatted acording to the network
+              required:
+                - transactionId
+                - formattedSigs
+      responses:
+        '200':
+          description: Successful response
+          content:
+             application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Status of the broadcast, False/True (failed/success)
+                  failedReason:
+                    type: string
+                    nullable: true
+                    description: The failed reason if the status is False
+                required:
+                  - status
+
 
   /collateral/v1/transactions:
     get:
@@ -622,3 +826,206 @@ paths:
                   txHash:
                     type: string
                     nullable: true
+
+  /internal/v1/mpc/start:
+    post:
+      tags:
+        - Exchange->E-Custody
+      description: Notify the exchange's mpc key share custody service to initiates an mpc signing
+      summary: /internal/v1/mpc/start
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestId:
+                  type: string
+                  description: The unique identifier of this request
+                userId:
+                  type: string
+                  description: A data needed for initiating an mpc signing
+                cmrkPK:
+                  type: string
+                  description: The public key to identifies an mpc key share
+                path:
+                  type: string
+                  description: The path to derive the "from" account.
+                mpcType:
+                  type: string
+                  description: MPC business type, currently it should be "sign"
+                network:
+                  type: string
+                  description: Chain identifier
+                cryptography:
+                  type: string
+                  description: Either "ecdsa-secp256k1" or "eddsa-ed25519", determined by the network
+                message:
+                  type: string
+                  description: The message (unsigned transaction hash) to be signed
+                timeToLive:
+                  type: int
+                  description: The total TTL of this mpc business
+                tokenData:
+                  type: object
+                  description: The token information needed to connect to the SinoHope's mpc-proxy.
+                  properties:
+                    token:
+                      type: string
+                      description: The token needed for connecting to the mpc-proxy.
+                    TODO:
+                      description: To be defined about all the fields
+              required:
+                - requestId
+                - userId
+                - cmrkPK
+                - path
+                - mpcType
+                - network
+                - cryptography
+                - message
+                - timeToLive
+                - tokenData
+      responses:
+        '200':
+          description: Successful response
+          content:
+             application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Status of the request, False/True (failed/success)
+                  failedReason:
+                    type: string
+                    nullable: true
+                    description: The failed reason if the status is False
+                required:
+                  - status
+
+  /internal/v1/mpc/signature/result:
+    post:
+      tags:
+        - E-Custody->Exchange
+      description: Notify the signature result to the exchange
+      summary: /internal/v1/mpc/signature/result
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestId:
+                  type: string
+                  description: The request id that this result related to
+                r:
+                  type: string
+                  description: The "r" vaule of the signature, hexadecimal string
+                s:
+                  type: string
+                  description: The "s" vaule of the signature, hexadecimal string
+                v:
+                  type: int
+                  description: The "v" vaule of the signature, either 0 or 1
+                formattedSigs:
+                  type: string
+                  description: The final signature formatted acording to the network
+              required:
+                - requestId
+                - r
+                - s
+                - v
+      responses:
+        '200':
+          description: Successful response
+          content:
+             application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Status of the request, False/True (failed/success)
+                  failedReason:
+                    type: string
+                    nullable: true
+                    description: The failed reason if the status is False
+                required:
+                  - status
+
+  /internal/v1/mpc/join:
+    post:
+      tags:
+        - Exchange->E-Custody
+      description: Notify the exchange's mpc key share custody service to join an mpc business initiated by user
+      summary: /internal/v1/mpc/join
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mpcType:
+                  type: string
+                  description: MPC business type, enumeration of "DKG", "Refresh", "Delete"
+                userId:
+                  type: string
+                  description: A data needed for locating the mpc key share
+                cryptography:
+                  type: string
+                  description: Either "ecdsa-secp256k1" or "eddsa-ed25519"
+                timeToLive:
+                  type: int
+                  description: The total TTL of this mpc business
+                targetUserId:
+                  type: string
+                  nullable: true
+                  description: The result will be connected to this target user id (null if the mpcType is DKG)
+                cmrkPK:
+                  type: string
+                  nullable: true
+                  description: The public key to identifies an mpc key share (null if the mpcType is DKG, otherwise it's required)
+                path:
+                  type: string
+                  nullable: true
+                  description: The path to derive the target account.
+                signatureX1:
+                  type: string
+                  nullable: true
+                  description: The user's signature to the mpc parameter data, which is signed by the user's mpc key share.(null if the mpcType is DKG, otherwise it's required)
+                tokenData:
+                  type: object
+                  description: The token information needed to connect to the SinoHope's mpc-proxy.
+                  properties:
+                    token:
+                      type: string
+                      description: The token needed for connecting to the mpc-proxy.
+                    TODO:
+                      description: To be defined about all the fields
+              required:
+                - mpcType
+                - userId
+                - cryptography
+                - timeToLive
+                - tokenData
+      responses:
+        '200':
+          description: Successful response
+          content:
+             application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Status of the request, False/True (failed/success)
+                  failedReason:
+                    type: string
+                    nullable: true
+                    description: The failed reason if the status is False
+                required:
+                  - status
