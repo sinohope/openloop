@@ -46,6 +46,7 @@ paths:
                 properties:
                   status:
                     type: boolean
+                    enum: [false,true]
                     description: Binding status, False/True (failed/success)
                   rejectReason:
                     type: string
@@ -111,7 +112,8 @@ paths:
                 type: object
                 properties:
                   received:
-                    type: int
+                    type: number
+                    example: 0
                     description: Address reception status,enum, 0 asynchronously processing, 1 Failed, 2 Success.
                 required:
                   - received
@@ -508,6 +510,8 @@ paths:
                   description: Unique identifier for the CVA account
                 mpcType:
                   type: string
+                  enum: ["DKG", "Refresh", "Delete"]
+                  example: "Refresh"
                   description: MPC business type, enumeration of "DKG", "Refresh", "Delete"
                 userId:
                   type: string
@@ -516,7 +520,7 @@ paths:
                   type: string
                   description: Either "ecdsa-secp256k1" or "eddsa-ed25519"
                 timeToLive:
-                  type: int
+                  type: number
                   description: The total TTL of this mpc business
                 targetUserId:
                   type: string
@@ -865,7 +869,7 @@ paths:
                   type: string
                   description: The message (unsigned transaction hash) to be signed
                 timeToLive:
-                  type: int
+                  type: number
                   description: The total TTL of this mpc business
                 tokenData:
                   type: object
@@ -928,7 +932,7 @@ paths:
                   type: string
                   description: The "s" vaule of the signature, hexadecimal string
                 v:
-                  type: int
+                  type: number
                   description: The "v" vaule of the signature, either 0 or 1
                 formattedSigs:
                   type: string
@@ -937,7 +941,6 @@ paths:
                 - requestId
                 - r
                 - s
-                - v
       responses:
         '200':
           description: Successful response
@@ -979,7 +982,8 @@ paths:
                   type: string
                   description: Either "ecdsa-secp256k1" or "eddsa-ed25519"
                 timeToLive:
-                  type: int
+                  type: number
+                  example: 1683196746
                   description: The total TTL of this mpc business
                 targetUserId:
                   type: string
