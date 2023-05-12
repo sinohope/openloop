@@ -1,11 +1,27 @@
 # Changelog
 
-| Version | Log           | Date       | Modifier |
-| ---- | ------------- | ---------- | ------ |
-| v1.0.0 | first version | 2023-03-12 | Kevin  |
-| v1.1.0 | second version| 2023-03-24 | Kevin  |
-| v1.2.0 | third version | 2023-05-04 | Darlzan  |
+Changes log, dates are displayed in UTC, shows in a reverse order.
 
+### v1.2.1
+> 2023/05/12 by Darlzan
+
+- `/exchange/v1/address` : add request feild `settlementNetwork`.
+- `/collateral/v1/settlement/tx/build` : remove feilds `network`, `address` in request, they should be determined by the settlement details.
+- add security section for all "Exchange->Custody" apis.
+
+### v1.2.0
+> 2023/05/04 by Darlzan
+
+- add apis relatied to mpc business
+
+### v1.1.0
+> 2023/03/24 by Kevin
+
+Second working version.
+### v1.1.0
+> 2023/03/12 by Kevin
+
+First version
 
 # Glossary
 

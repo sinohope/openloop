@@ -91,6 +91,9 @@ paths:
                       address:
                         type: string
                         description: Address allocated by SinoHope for the user's CVA account
+                      settlementNetwork:
+                        type: string
+                        description: the settlement network of this asset.
                       tag:
                         type: string
                         nullable: true
@@ -100,6 +103,7 @@ paths:
                       - network
                       - assetId
                       - address
+                      - settlementNetwork
               required:
                 - requestId
                 - collateralId
@@ -568,6 +572,9 @@ paths:
         - Exchange->Custody
       description: Notify SinoHope after the exchange asynchronously processes the added address request
       summary: /collateral/v1/address/status
+      security:
+        - ApiKeyAuth: []
+          ApiSig: []
       requestBody:
         required: true
         content:
@@ -600,6 +607,9 @@ paths:
         - Exchange->Custody
       description: Notify SinoHope of the settlement details list after the exchange initiates a settlement
       summary: /collateral/v1/settlement
+      security:
+        - ApiKeyAuth: []
+          ApiSig: []
       requestBody:
         required: true
         content:
@@ -674,6 +684,9 @@ paths:
         - Exchange->Custody
       description: Build an unsigned transaction acording the settlementId and assetId (the transfer amount will be filled by the user confirmed settlement details)
       summary: /collateral/v1/settlement/tx/build
+      security:
+        - ApiKeyAuth: []
+          ApiSig: []
       requestBody:
         required: true
         content:
@@ -687,17 +700,9 @@ paths:
                 assetId:
                   type: string
                   description: SinoHope-defined currency identifier
-                network:
-                  type: string
-                  description: Chain identifier defined by the exchange
-                address:
-                  type: string
-                  description: The receiving address of the exchange 
               required:
                 - settlementId
                 - assetId
-                - network
-                - address
       responses:
         '200':
           description: Successful response
@@ -768,6 +773,9 @@ paths:
         - Exchange->Custody
       description: Broadcast a signed transaction
       summary: /collateral/v1/settlement/tx/broadcast
+      security:
+        - ApiKeyAuth: []
+          ApiSig: []
       requestBody:
         required: true
         content:
@@ -809,6 +817,9 @@ paths:
         - Exchange->Custody
       description: Query the progress of CVA account withdrawal based on the withdrawal order number initiated by SinoHope
       summary: /collateral/v1/transactions
+      security:
+        - ApiKeyAuth: []
+          ApiSig: []
       parameters:
         - name: txId
           in: query
@@ -1033,3 +1044,17 @@ paths:
                     description: The failed reason if the status is False
                 required:
                   - status
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: This API key is given to you by SinoHope when onboarding your
+        exchange.
+    ApiSig:
+      type: apiKey
+      in: header
+      name: X-API-SIG
+      description: signature of the request body using the secret_key which is provided by SinoHope when onboarding your exchange.
