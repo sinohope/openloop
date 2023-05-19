@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: OpenLoop API
-  version: 1.2.0
+  version: 1.2.2
   description: 
     $ref: description.md
 tags:
@@ -93,7 +93,7 @@ paths:
                         description: Address allocated by SinoHope for the user's CVA account
                       settlementNetwork:
                         type: string
-                        description: the settlement network of this asset.
+                        description: the settlement network of this currency.
                       tag:
                         type: string
                         nullable: true
@@ -201,7 +201,7 @@ paths:
                 collateralId:
                   type: string
                   description: Unique identifier for the CVA account
-                assetId:
+                currency:
                   type: string
                   description: SinoHope-defined asset identifier
                 perferedNetwork:
@@ -209,7 +209,7 @@ paths:
                   description: Default settlement network for the CVA account, specified by the user on SinoHope side (previously confirmed with the exchange)
               required:
                 - collateralId
-                - assetId
+                - currency
                 - perferedNetwork
       responses:
         '200':
@@ -431,6 +431,85 @@ paths:
                     description: Status of the settlement finish notification, False/True (failed/success)
                 required:
                   - status
+
+  /exchange/v1/transaction/status:
+    post:
+      tags:
+        - Custody->Exchange
+      description: Notify the status of a transaction
+      summary: /exchange/v1/transaction/status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transactionId:
+                  type: string
+                  description: Unique identifier for the transaction
+                status:
+                  type: string
+                  enum: ["PENDING", "SUCCESS", "NEED_RETRY", "DISCARD", "FAIL"]
+                  example: "PENDING"
+                  description: The status of the transaction
+                message:
+                  type: string
+                  nullable: true
+                  description: Additional message about the transaction
+              required:
+                - transactionId
+                - status
+      responses:
+        '200':
+          description: Successful response
+          content:
+             application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Status of the notification request, False/True (failed/success)
+                required:
+                  - status
+
+  /exchange/v1/withdrawable:
+    post:
+      tags:
+        - Custody->Exchange
+      description: Query the withdrawable amount of a asset from the specific CVA account
+      summary: /exchange/v1/withdrawable
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collateralId:
+                  type: string
+                  description: Unique identifier for the CVA account
+                assetId:
+                  type: string
+                  description: SinoHope-defined currency identifier
+              required:
+                - collateralId
+                - assetId
+      responses:
+        '200':
+          description: Successful response
+          content:
+             application/json:
+              schema:
+                type: object
+                properties:
+                  amount:
+                    type: number
+                    example: 0
+                    description: Withdrawable amount (a non-negative number, 0 means nothing can be withdrawed).
+                required:
+                  - amount
 
   /exchange/v1/withdraw:
     post:
@@ -700,6 +779,10 @@ paths:
                 assetId:
                   type: string
                   description: SinoHope-defined currency identifier
+                replacedTxId:
+                  type: string
+                  nullable: true
+                  description: If this field is not empty, it means that we need to build a new transaction (usually with a higher transaction fee) to replace the existing specified transaction.
               required:
                 - settlementId
                 - assetId
@@ -786,12 +869,13 @@ paths:
                 transactionId:
                   type: string
                   description: The unique identifier of the transaction defined by SinoHope
-                formattedSigs:
+                signature:
                   type: string
-                  description: The final signature formatted acording to the network
+                  example: "3e7badaf020a3975a6783ec2f7f44efe4e79731227b1b85367ae1da8fe01c144533469a705baa61468b267f107e075844c7b520366e985b42ecfb6884f730d4300"
+                  description: The final signature, it's concatenated directly by the r, s, v value, as "r||s||v", and formatted in hexadecimal.
               required:
                 - transactionId
-                - formattedSigs
+                - signature
       responses:
         '200':
           description: Successful response
@@ -815,7 +899,7 @@ paths:
     get:
       tags:
         - Exchange->Custody
-      description: Query the progress of CVA account withdrawal based on the withdrawal order number initiated by SinoHope
+      description: Query the status of a CVA transaction
       summary: /collateral/v1/transactions
       security:
         - ApiKeyAuth: []
@@ -826,7 +910,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Unique identifier for the withdrawal order
+          description: Unique identifier for the transaction
       responses:
         '200':
           description: Successful response
@@ -837,7 +921,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    description: Settlement status, enumeration to be determined
+                    description: Transaction status, enumeration to be determined
                   txHash:
                     type: string
                     nullable: true
@@ -936,22 +1020,13 @@ paths:
                 requestId:
                   type: string
                   description: The request id that this result related to
-                r:
+                signature:
                   type: string
-                  description: The "r" vaule of the signature, hexadecimal string
-                s:
-                  type: string
-                  description: The "s" vaule of the signature, hexadecimal string
-                v:
-                  type: number
-                  description: The "v" vaule of the signature, either 0 or 1
-                formattedSigs:
-                  type: string
-                  description: The final signature formatted acording to the network
+                  example: "3e7badaf020a3975a6783ec2f7f44efe4e79731227b1b85367ae1da8fe01c144533469a705baa61468b267f107e075844c7b520366e985b42ecfb6884f730d4300"
+                  description: The final signature, it's concatenated directly by the r, s, v value, as "r||s||v", and formatted in hexadecimal.
               required:
                 - requestId
-                - r
-                - s
+                - signature
       responses:
         '200':
           description: Successful response

@@ -2,6 +2,15 @@
 
 Changes log, dates are displayed in UTC, shows in a reverse order.
 
+### v1.2.2
+> 2023/05/18 by Darlzan
+
+- `/exchange/v1/settlement/network`: The settlement network should be specified for a currency, so change the field `assetId` to `currency`.
+- Added new apis in the Exchange: `/exchange/v1/transaction/status` and `/exchange/v1/withdrawable`.
+- `/collateral/v1/settlement/tx/build` : add feild `replacedTxId`.
+- `/internal/v1/mpc/signature/result` and `/collateral/v1/settlement/tx/broadcast`: modify the fields about signature.
+- modify the description of `/collateral/v1/transactions`.
+
 ### v1.2.1
 > 2023/05/12 by Darlzan
 
@@ -18,7 +27,7 @@ Changes log, dates are displayed in UTC, shows in a reverse order.
 > 2023/03/24 by Kevin
 
 Second working version.
-### v1.1.0
+### v1.0.0
 > 2023/03/12 by Kevin
 
 First version
