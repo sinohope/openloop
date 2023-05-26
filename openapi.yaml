@@ -28,8 +28,7 @@ paths:
               type: object
               properties:
                 collateralId:
-                  type: string
-                  description: Unique identifier for the CVA account
+                  $ref: '#/components/schemas/CollateralId'
                 exchangeAccountId:
                   type: string
                   description: Unique identifier for the MEA account to be bound, API KEY
@@ -72,32 +71,28 @@ paths:
                   type: string
                   description: Identifier for this binding request
                 collateralId:
-                  type: string
-                  description: Unique identifier for the CVA account
+                  $ref: '#/components/schemas/CollateralId'
                 assets:
                   type: array
                   items:
                     type: object
                     properties:
                       currency:
-                        type: string
-                        description: Currency identifier defined by the exchange
+                        $ref: '#/components/schemas/Currency'
                       network:
-                        type: string
-                        description: Chain identifier defined by the exchange
+                        $ref: '#/components/schemas/Network'
                       assetId:
-                        type: string
-                        description: Asset identifier defined by SinoHope (different asset identifiers for the same currency on different chains, e.g., USDT_ETH, USDT_TRON)
+                        $ref: '#/components/schemas/AssetId'
                       address:
                         type: string
-                        description: Address allocated by SinoHope for the user's CVA account
+                        description: Address allocated by Sinohope for the user's CVA account
                       settlementNetwork:
-                        type: string
+                        $ref: '#/components/schemas/Network'
                         description: the settlement network of this currency.
                       tag:
                         type: string
                         nullable: true
-                        description: Tag allocated by SinoHope for the user's CVA account
+                        description: Tag allocated by Sinohope for the user's CVA account
                     required:
                       - currency
                       - network
@@ -163,8 +158,7 @@ paths:
               type: object
               properties:
                 collateralId:
-                  type: string
-                  description: Unique identifier for the CVA account
+                  $ref: '#/components/schemas/CollateralId'
                 cmrkPK:
                   type: string
                   description: The public key of the CVA's root mpc key
@@ -199,14 +193,13 @@ paths:
               type: object
               properties:
                 collateralId:
-                  type: string
-                  description: Unique identifier for the CVA account
+                  $ref: '#/components/schemas/CollateralId'
                 currency:
-                  type: string
-                  description: SinoHope-defined asset identifier
+                  $ref: '#/components/schemas/Currency'
                 perferedNetwork:
                   type: string
-                  description: Default settlement network for the CVA account, specified by the user on SinoHope side (previously confirmed with the exchange)
+                  description: Default settlement network for the CVA account, specified by the user on Sinohope side (previously confirmed with the exchange)
+                  example: "ETH"
               required:
                 - collateralId
                 - currency
@@ -239,8 +232,7 @@ paths:
               type: object
               properties:
                 collateralId:
-                  type: string
-                  description: Unique identifier for the CVA account
+                  $ref: '#/components/schemas/CollateralId'
                 settlementId:
                   type: string
                   description: Unique identifier for a settlement batch
@@ -267,9 +259,9 @@ paths:
                     items:
                       type: object
                       properties:
-                        assetid:
+                        assetId:
                           type: string
-                          description: SinoHope's asset identifier (for multi-chain scenarios, the exchange needs to split the details based on the CVA account balance)
+                          description: Sinohope's asset identifier (for multi-chain scenarios, the exchange needs to split the details based on the CVA account balance)
                         amount:
                           type: string
                           description: Settlement amount
@@ -281,7 +273,7 @@ paths:
                           nullable: true
                           description: Exchange's receiving address tag
                       required:
-                        - assetid
+                        - assetId
                         - amount
                         - toAddress
                   to_collateral:
@@ -289,9 +281,9 @@ paths:
                     items:
                       type: object
                       properties:
-                        assetid:
+                        assetId:
                           type: string
-                          description: SinoHope's asset identifier (for multi-chain scenarios, assets should be merged for settlement based on the user's preferred network)
+                          description: Sinohope's asset identifier (for multi-chain scenarios, assets should be merged for settlement based on the user's preferred network)
                         amount:
                           type: string
                           description: Settlement amount
@@ -303,7 +295,7 @@ paths:
                           nullable: true
                           description: CVA address tag
                       required:
-                        - assetid
+                        - assetId
                         - amount
                         - toAddress
 
@@ -321,8 +313,7 @@ paths:
               type: object
               properties:
                 collateralId:
-                  type: string
-                  description: Unique identifier for the CVA account
+                  $ref: '#/components/schemas/CollateralId'
                 settlementId:
                   type: string
                   description: Unique identifier for a settlement batch
@@ -351,7 +342,7 @@ paths:
     get:
       tags:
         - Custody->Exchange
-      description: Query the settlement progress from SinoHope to the exchange
+      description: Query the settlement progress from Sinohope to the exchange
       summary: /exchange/v1/settlement/status
       parameters:
         - name: settlementId
@@ -370,25 +361,15 @@ paths:
                 properties:
                   data:
                     type: array
+                    description: Asset list transferred from the exchange to CVA
                     items:
-                      type: object
-                      properties:
-                        assetid:
-                          type: string
-                          description: Asset list transferred from the exchange to CVA
-                        status:
-                          type: string
-                          description: Settlement status, enumeration to be determined
-                        txHash:
-                          type: string
-                          nullable: true
-                          description: Transaction hash, if the transfer is completed
+                      $ref: '#/components/schemas/assetTransStatusItem'
 
   /exchange/v1/settlement/finish:
     post:
       tags:
         - Custody->Exchange
-      description: Notify the exchange after SinoHope settlement is completed
+      description: Notify the exchange after Sinohope settlement is completed
       summary: /exchange/v1/settlement/finish
       requestBody:
         required: true
@@ -402,19 +383,9 @@ paths:
                   description: Unique identifier for a settlement batch
                 data:
                   type: array
+                  description: Asset list transferred from CVA account to the exchange
                   items:
-                    type: object
-                    properties:
-                      assetid:
-                        type: string
-                        description: Asset list transferred from CVA account to the exchange
-                      status:
-                        type: string
-                        description: Settlement status, enumeration to be determined
-                      txHash:
-                        type: string
-                        nullable: true
-                        description: Transaction hash, if the transfer is completed
+                    $ref: '#/components/schemas/assetTransStatusItem'
               required:
                 - settlementId
                 - data
@@ -488,11 +459,10 @@ paths:
               type: object
               properties:
                 collateralId:
-                  type: string
-                  description: Unique identifier for the CVA account
+                  $ref: '#/components/schemas/CollateralId'
                 assetId:
                   type: string
-                  description: SinoHope-defined currency identifier
+                  description: Sinohope-defined currency identifier
               required:
                 - collateralId
                 - assetId
@@ -525,14 +495,13 @@ paths:
               type: object
               properties:
                 collateralId:
-                  type: string
-                  description: Unique identifier for the CVA account
+                  $ref: '#/components/schemas/CollateralId'
                 txId:
                   type: string
-                  description: Unique identifier for the withdrawal order defined by SinoHope (if the withdrawal fails, the same txId will be used to initiate the withdrawal request)
+                  description: Unique identifier for the withdrawal order defined by Sinohope (if the withdrawal fails, the same txId will be used to initiate the withdrawal request)
                 assetId:
                   type: string
-                  description: SinoHope-defined currency identifier
+                  description: Sinohope-defined currency identifier
                 amount:
                   type: string
                   description: Withdrawal amount of the user
@@ -589,8 +558,13 @@ paths:
               type: object
               properties:
                 collateralId:
-                  type: string
-                  description: Unique identifier for the CVA account
+                  $ref: '#/components/schemas/CollateralId'
+                roomId:
+                  $ref: '#/components/schemas/RoomId'
+                partyId:
+                  $ref: '#/components/schemas/PartyId'
+                partyIds:
+                  $ref: '#/components/schemas/PartyIds'
                 mpcType:
                   type: string
                   enum: ["DKG", "Refresh", "Delete"]
@@ -623,6 +597,9 @@ paths:
                   description: The user's signature to the mpc parameter data, which is signed by the user's mpc key share.(null if the mpcType is DKG, otherwise it's required)
               required:
                 - collateralId
+                - roomId
+                - partyId
+                - partyIds
                 - mpcType
                 - userId
                 - cryptography
@@ -649,7 +626,7 @@ paths:
     post:
       tags:
         - Exchange->Custody
-      description: Notify SinoHope after the exchange asynchronously processes the added address request
+      description: Notify Sinohope after the exchange asynchronously processes the added address request
       summary: /collateral/v1/address/status
       security:
         - ApiKeyAuth: []
@@ -684,7 +661,7 @@ paths:
     post:
       tags:
         - Exchange->Custody
-      description: Notify SinoHope of the settlement details list after the exchange initiates a settlement
+      description: Notify Sinohope of the settlement details list after the exchange initiates a settlement
       summary: /collateral/v1/settlement
       security:
         - ApiKeyAuth: []
@@ -700,16 +677,15 @@ paths:
                   type: string
                   description: Exchange-side settlement batch identifier
                 collateralId:
-                  type: string
-                  description: Unique identifier for the CVA account
+                  $ref: '#/components/schemas/CollateralId'
                 to_exchange:
                   type: array
                   items:
                     type: object
                     properties:
-                      assetid:
+                      assetId:
                         type: string
-                        description: SinoHope asset identifier (for multi-chain scenarios, the exchange needs to split the details based on the balance of the user's CVA address)
+                        description: Sinohope asset identifier (for multi-chain scenarios, the exchange needs to split the details based on the balance of the user's CVA address)
                       amount:
                         type: string
                         description: Settlement amount
@@ -725,9 +701,9 @@ paths:
                   items:
                     type: object
                     properties:
-                      assetid:
+                      assetId:
                         type: string
-                        description: SinoHope asset identifier (for multi-chain scenarios, the exchange needs to merge the settlement assets based on the user's preferedNetwork field when binding the address)
+                        description: Sinohope asset identifier (for multi-chain scenarios, the exchange needs to merge the settlement assets based on the user's preferedNetwork field when binding the address)
                       amount:
                         type: string
                         description: Settlement amount
@@ -778,7 +754,7 @@ paths:
                   description: Unique identifier for a settlement batch
                 assetId:
                   type: string
-                  description: SinoHope-defined currency identifier
+                  description: Sinohope-defined currency identifier
                 replacedTxId:
                   type: string
                   nullable: true
@@ -868,7 +844,7 @@ paths:
               properties:
                 transactionId:
                   type: string
-                  description: The unique identifier of the transaction defined by SinoHope
+                  description: The unique identifier of the transaction defined by Sinohope
                 signature:
                   type: string
                   example: "3e7badaf020a3975a6783ec2f7f44efe4e79731227b1b85367ae1da8fe01c144533469a705baa61468b267f107e075844c7b520366e985b42ecfb6884f730d4300"
@@ -968,7 +944,7 @@ paths:
                   description: The total TTL of this mpc business
                 tokenData:
                   type: object
-                  description: The token information needed to connect to the SinoHope's mpc-proxy.
+                  description: The token information needed to connect to the Sinohope's mpc-proxy.
                   properties:
                     token:
                       type: string
@@ -1058,6 +1034,12 @@ paths:
             schema:
               type: object
               properties:
+                roomId:
+                  $ref: '#/components/schemas/RoomId'
+                partyId:
+                  $ref: '#/components/schemas/PartyId'
+                partyIds:
+                  $ref: '#/components/schemas/PartyIds'
                 mpcType:
                   type: string
                   description: MPC business type, enumeration of "DKG", "Refresh", "Delete"
@@ -1089,7 +1071,7 @@ paths:
                   description: The user's signature to the mpc parameter data, which is signed by the user's mpc key share.(null if the mpcType is DKG, otherwise it's required)
                 tokenData:
                   type: object
-                  description: The token information needed to connect to the SinoHope's mpc-proxy.
+                  description: The token information needed to connect to the Sinohope's mpc-proxy.
                   properties:
                     token:
                       type: string
@@ -1097,6 +1079,9 @@ paths:
                     TODO:
                       description: To be defined about all the fields
               required:
+                - roomId
+                - partyId
+                - partyIds
                 - mpcType
                 - userId
                 - cryptography
@@ -1126,10 +1111,58 @@ components:
       type: apiKey
       in: header
       name: X-API-Key
-      description: This API key is given to you by SinoHope when onboarding your
+      description: This API key is given to you by Sinohope when onboarding your
         exchange.
     ApiSig:
       type: apiKey
       in: header
       name: X-API-SIG
-      description: signature of the request body using the secret_key which is provided by SinoHope when onboarding your exchange.
+      description: signature of the request body using the secret_key which is provided by Sinohope when onboarding your exchange.
+  schemas:
+    assetTransStatusItem:
+      type: object
+      properties:
+        assetId:
+          type: string
+          description: Asset identifier defined by Sinohope (different asset identifiers for the same currency on different chains, e.g., USDT_ETH, USDT_TRON)
+          example: "USDT_ETH"
+        status:
+          type: string
+          description: Settlement status, enumeration to be determined
+          example: "COMPLETED"
+        txHash:
+          type: string
+          nullable: true
+          description: Transaction hash, if the transfer is completed
+          example: "0x1aa0a50ca9db654a7dc2788548b43d121a59463621485be35515063d4a1382b6"
+      required:
+        - assetId
+        - status
+    CollateralId:
+      type: string
+      description: Unique identifier for the CVA account
+      example: "411136872665588"
+    Currency:
+      type: string
+      description: Currency identifier defined by the exchange
+      example: "USDT"
+    Network:
+      type: string
+      description: Chain identifier defined by the exchange
+      example: "ETH"
+    AssetId:
+      type: string
+      description: Asset identifier defined by Sinohope (different asset identifiers for the same currency on different chains, e.g., USDT_ETH, USDT_TRON)
+      example: "USDT_ETH"
+    RoomId:
+      type: string
+      description: Unique identifier for a mpc business
+      example: "2dfb9742-e86f-42ce-b9a2-d3c73fd8a49e"
+    PartyId:
+      type: string
+      description: The initiator of a mpc business, needed by e-custody.
+    PartyIds:
+      type: array
+      description: The participants of a mpc business, needed by e-custody.
+      items:
+        type: string

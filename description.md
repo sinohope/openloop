@@ -2,6 +2,13 @@
 
 Changes log, dates are displayed in UTC, shows in a reverse order.
 
+### v1.2.3
+> 2023/05/26 by Darlzan
+
+- `/exchange/v1/mpc/join` and `/internal/v1/mpc/join`: add feilds `roomId`, `partyId`, `partyIds`.
+- `/exchange/v1/settlement/list` and `/collateral/v1/settlement`: fix typo, `assetid` -> `assetId`.
+- add some examples, fix some descriptions.
+
 ### v1.2.2
 > 2023/05/18 by Darlzan
 
