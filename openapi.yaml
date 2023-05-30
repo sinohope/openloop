@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: OpenLoop API
-  version: 1.2.2
+  version: 0.9.6
   description: 
     $ref: description.md
 tags:
@@ -196,14 +196,14 @@ paths:
                   $ref: '#/components/schemas/CollateralId'
                 currency:
                   $ref: '#/components/schemas/Currency'
-                perferedNetwork:
+                settlementNetwork:
                   type: string
                   description: Default settlement network for the CVA account, specified by the user on Sinohope side (previously confirmed with the exchange)
                   example: "ETH"
               required:
                 - collateralId
                 - currency
-                - perferedNetwork
+                - settlementNetwork
       responses:
         '200':
           description: Successful response

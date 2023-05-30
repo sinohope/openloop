@@ -2,14 +2,19 @@
 
 Changes log, dates are displayed in UTC, shows in a reverse order.
 
-### v1.2.3
+### v0.9.6
+> 2023/05/30 by Darlzan
+
+- `/exchange/v1/settlement/network` : change fields name `perferedNetwork` to `settlementNetwork`
+
+### v0.9.5
 > 2023/05/26 by Darlzan
 
-- `/exchange/v1/mpc/join` and `/internal/v1/mpc/join`: add feilds `roomId`, `partyId`, `partyIds`.
+- `/exchange/v1/mpc/join` and `/internal/v1/mpc/join`: add fields `roomId`, `partyId`, `partyIds`.
 - `/exchange/v1/settlement/list` and `/collateral/v1/settlement`: fix typo, `assetid` -> `assetId`.
 - add some examples, fix some descriptions.
 
-### v1.2.2
+### v0.9.4
 > 2023/05/18 by Darlzan
 
 - `/exchange/v1/settlement/network`: The settlement network should be specified for a currency, so change the field `assetId` to `currency`.
@@ -18,23 +23,23 @@ Changes log, dates are displayed in UTC, shows in a reverse order.
 - `/internal/v1/mpc/signature/result` and `/collateral/v1/settlement/tx/broadcast`: modify the fields about signature.
 - modify the description of `/collateral/v1/transactions`.
 
-### v1.2.1
+### v0.9.3
 > 2023/05/12 by Darlzan
 
 - `/exchange/v1/address` : add request feild `settlementNetwork`.
 - `/collateral/v1/settlement/tx/build` : remove feilds `network`, `address` in request, they should be determined by the settlement details.
 - add security section for all "Exchange->Custody" apis.
 
-### v1.2.0
+### v0.9.2
 > 2023/05/04 by Darlzan
 
-- add apis relatied to mpc business
+- add apis related to mpc business
 
-### v1.1.0
+### v0.9.1
 > 2023/03/24 by Kevin
 
 Second working version.
-### v1.0.0
+### v0.9.0
 > 2023/03/12 by Kevin
 
 First version
