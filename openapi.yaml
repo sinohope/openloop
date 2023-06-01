@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: OpenLoop API
-  version: 0.9.6
+  version: 0.9.7
   description: 
     $ref: description.md
 tags:
@@ -218,6 +218,57 @@ paths:
                 required:
                   - status
 
+  /exchange/v1/deposit:
+    post:
+      tags:
+        - Custody->Exchange
+      description: Notify the exchange that there's an user deposit.
+      summary: /exchange/v1/deposit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collateralId:
+                  $ref: '#/components/schemas/CollateralId'
+                currency:
+                  $ref: '#/components/schemas/Currency'
+                network:
+                  $ref: '#/components/schemas/Network'
+                assetId:
+                  $ref: '#/components/schemas/AssetId'
+                txHash:
+                  type: string
+                  description: the deposit transaction hash
+                  example: "0xe925a7254d5cb38aad20fb36d8477d62a445cdfe1391763bace676fb571b99da"
+                amount:
+                  type: string
+                  description: the deposit amount(origin value, not converted acording to the decimals)
+                  example: "36870000"
+              required:
+                - collateralId
+                - currency
+                - network
+                - assetId
+                - txHash
+                - amount
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accepted:
+                    type: boolean
+                    example: true
+                    description: Whether the deposit is accepted( True - accepted, False - denied).
+                required:
+                  - accepted
+
   /exchange/v1/settlement/list:
     post:
       tags:
@@ -262,9 +313,11 @@ paths:
                         assetId:
                           type: string
                           description: Sinohope's asset identifier (for multi-chain scenarios, the exchange needs to split the details based on the CVA account balance)
+                          example: "USDT_ETH"
                         amount:
                           type: string
                           description: Settlement amount
+                          example: "36870000"
                         toAddress:
                           type: string
                           description: Exchange's receiving address
@@ -284,9 +337,11 @@ paths:
                         assetId:
                           type: string
                           description: Sinohope's asset identifier (for multi-chain scenarios, assets should be merged for settlement based on the user's preferred network)
+                          example: "ETH_ETH"
                         amount:
                           type: string
                           description: Settlement amount
+                          example: "1000000000000000000"
                         toAddress:
                           type: string
                           description: CVA address
@@ -342,7 +397,7 @@ paths:
     get:
       tags:
         - Custody->Exchange
-      description: Query the settlement progress from Sinohope to the exchange
+      description: Query the settlement progress from the exchange to CVA
       summary: /exchange/v1/settlement/status
       parameters:
         - name: settlementId
@@ -475,9 +530,9 @@ paths:
                 type: object
                 properties:
                   amount:
-                    type: number
-                    example: 0
-                    description: Withdrawable amount (a non-negative number, 0 means nothing can be withdrawed).
+                    type: string
+                    example: "0"
+                    description: Withdrawable amount ("-1" means the user can withdraw this asset fully freely, "0" means nothing can be withdrawed, other wise means the maximun amount that the user can withdraw).
                 required:
                   - amount
 
@@ -502,9 +557,11 @@ paths:
                 assetId:
                   type: string
                   description: Sinohope-defined currency identifier
+                  example: "ETH_ETH"
                 amount:
                   type: string
                   description: Withdrawal amount of the user
+                  example: "1000000000000000000"
                 fromAddress:
                   type: string
                   description: Specific CVA address (multiple addresses may exist under the same network for a CVA account)
@@ -902,6 +959,68 @@ paths:
                     type: string
                     nullable: true
 
+  /collateral/v1/deposit/balance:
+    post:
+      tags:
+        - Exchange->Custody
+      description: Query the deposit balance details.
+      summary: /collateral/v1/deposit/balance
+      security:
+        - ApiKeyAuth: []
+          ApiSig: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collateralId:
+                  $ref: '#/components/schemas/CollateralId'
+                currency:
+                  $ref: '#/components/schemas/Currency'
+              required:
+                - collateralId
+                - currency
+      responses:
+        '200':
+          description: Successful response
+          content:
+             application/json:
+              schema:
+                type: object
+                properties:
+                  collateralId:
+                    $ref: '#/components/schemas/CollateralId'
+                  currency:
+                    $ref: '#/components/schemas/Currency'
+                  totalAmount:
+                    type: string
+                    description: total deposit balance of the currency
+                    example: "36870000"
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        network:
+                          $ref: '#/components/schemas/Network'
+                        assetId:
+                          $ref: '#/components/schemas/AssetId'
+                        amount:
+                          type: string
+                          description: the deposit amount(origin value, not converted acording to the decimals)
+                          example: "36870000"
+                      required:
+                        - network
+                        - assetId
+                        - amount
+                required:
+                  - collateralId
+                  - currency
+                  - totalAmount
+                  - details
+
   /internal/v1/mpc/start:
     post:
       tags:
@@ -942,15 +1061,6 @@ paths:
                 timeToLive:
                   type: number
                   description: The total TTL of this mpc business
-                tokenData:
-                  type: object
-                  description: The token information needed to connect to the Sinohope's mpc-proxy.
-                  properties:
-                    token:
-                      type: string
-                      description: The token needed for connecting to the mpc-proxy.
-                    TODO:
-                      description: To be defined about all the fields
               required:
                 - requestId
                 - userId
@@ -961,7 +1071,6 @@ paths:
                 - cryptography
                 - message
                 - timeToLive
-                - tokenData
       responses:
         '200':
           description: Successful response
@@ -1069,15 +1178,6 @@ paths:
                   type: string
                   nullable: true
                   description: The user's signature to the mpc parameter data, which is signed by the user's mpc key share.(null if the mpcType is DKG, otherwise it's required)
-                tokenData:
-                  type: object
-                  description: The token information needed to connect to the Sinohope's mpc-proxy.
-                  properties:
-                    token:
-                      type: string
-                      description: The token needed for connecting to the mpc-proxy.
-                    TODO:
-                      description: To be defined about all the fields
               required:
                 - roomId
                 - partyId
@@ -1086,7 +1186,6 @@ paths:
                 - userId
                 - cryptography
                 - timeToLive
-                - tokenData
       responses:
         '200':
           description: Successful response

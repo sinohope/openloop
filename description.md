@@ -2,6 +2,13 @@
 
 Changes log, dates are displayed in UTC, shows in a reverse order.
 
+### v0.9.7
+> 2023/05/30 by Darlzan
+
+- `/exchange/v1/deposit` : new added.
+- `/collateral/v1/deposit/balance` : new added.
+- `/exchange/v1/withdrawable`: change the type of the fields `amount` in response data from `number` to `string`.
+
 ### v0.9.6
 > 2023/05/30 by Darlzan
 
