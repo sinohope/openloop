@@ -2,6 +2,12 @@
 
 Changes log, dates are displayed in UTC, shows in a reverse order.
 
+### v0.9.8
+> 2023/06/01 by Darlzan
+
+- `/exchange/v1/mpc/pubkey` :contains two public keys, ecdsa-secp256k1 public key and eddsa-ed25519 public key.
+- `/exchange/v1/settlement/confirm` : add fields `approved`.
+
 ### v0.9.7
 > 2023/05/30 by Darlzan
 

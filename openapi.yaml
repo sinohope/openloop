@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: OpenLoop API
-  version: 0.9.7
+  version: 0.9.8
   description: 
     $ref: description.md
 tags:
@@ -160,8 +160,17 @@ paths:
                 collateralId:
                   $ref: '#/components/schemas/CollateralId'
                 cmrkPK:
-                  type: string
-                  description: The public key of the CVA's root mpc key
+                  type: object
+                  description: The public keys of the CVA's root mpc key
+                  properties:
+                    ecdsaPK:
+                      type: string
+                      description: The "ecdsa-secp256k1" compressed public key (33 bytes, formatted in hexadecimal).
+                      example: "03598ecfd82edccf9d1ad0da244b27b266640c21891fa1c293909b12a03ca16ec5"
+                    eddsaPK:
+                      type: string
+                      description: the "eddsa-ed25519" compressed public key(32 bytes, formatted in hexadecimal).
+                      example: "48e7b1ec57a57c14acdb09b50b250c59b74139d23968436861696e4b65795820"
               required:
                 - collateralId
                 - cmrkPK
@@ -372,6 +381,10 @@ paths:
                 settlementId:
                   type: string
                   description: Unique identifier for a settlement batch
+                approved:
+                  type: boolean
+                  description: The user has approved the settlement details (True), or denied/disagreed the settlement details (False).
+                  example: true
                 assetId:
                   type: string
                   nullable: true
@@ -379,6 +392,7 @@ paths:
               required:
                 - collateralId
                 - settlementId
+                - approved
       responses:
         '200':
           description: Successful response
