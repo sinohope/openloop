@@ -2,6 +2,11 @@
 
 Changes log, dates are displayed in UTC, shows in a reverse order.
 
+### v0.9.9
+> 2023/06/06 by Darlzan
+
+- `/collateral/v1/settlement/tx/build` : add fields `cryptography` in the response.
+
 ### v0.9.8
 > 2023/06/01 by Darlzan
 

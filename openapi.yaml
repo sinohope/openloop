@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: OpenLoop API
-  version: 0.9.8
+  version: 0.9.9
   description: 
     $ref: description.md
 tags:
@@ -886,10 +886,15 @@ paths:
                       path:
                         type: string
                         description: The path to derive the "from" account.
+                      cryptography:
+                        type: string
+                        description: Either "ecdsa-secp256k1" or "eddsa-ed25519", determined by the network
+                        example: "ecdsa-secp256k1"
                     required:
                       - userId
                       - cmrkPK
                       - path
+                      - cryptography
                   failedReason:
                     type: string
                     nullable: true
@@ -1069,6 +1074,7 @@ paths:
                 cryptography:
                   type: string
                   description: Either "ecdsa-secp256k1" or "eddsa-ed25519", determined by the network
+                  example: "ecdsa-secp256k1"
                 message:
                   type: string
                   description: The message (unsigned transaction hash) to be signed
