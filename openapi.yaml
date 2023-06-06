@@ -862,7 +862,7 @@ paths:
                         description: Unsigned transaction hash. Note that this is not the final transaction hash.
                       data:
                         type: object
-                        description: Unsigned transaction detail data, which needs to determine the data fields based on network, and txType.
+                        description: Unsigned transaction detail data, which needs to determine the data fields based on network, and txType. If it's an UTXO transaction, then the data should be a map , which key is a `vinId` that identifies the TransactionInput and the value is the TransactionInput.
                         properties:
                           field1:
                             type: string
@@ -921,10 +921,13 @@ paths:
                 transactionId:
                   type: string
                   description: The unique identifier of the transaction defined by Sinohope
-                signature:
-                  type: string
-                  example: "3e7badaf020a3975a6783ec2f7f44efe4e79731227b1b85367ae1da8fe01c144533469a705baa61468b267f107e075844c7b520366e985b42ecfb6884f730d4300"
-                  description: The final signature, it's concatenated directly by the r, s, v value, as "r||s||v", and formatted in hexadecimal.
+                signatures:
+                  type: object
+                  description: The final signature(s), it should be a map of sinature(s), for non-UTXO transaction, the key should be `sig`, for UTXO transaction, the key(s) should be a `vinId`, which should be correlated to the one in the response of `/collateral/v1/settlement/tx/build`. Each signature is concatenated directly by the r, s, v value, as "r||s||v", and formatted in hexadecimal. 
+                  additionalProperties:
+                    type: string
+                  example: 
+                    "sig": "3e7badaf020a3975a6783ec2f7f44efe4e79731227b1b85367ae1da8fe01c144533469a705baa61468b267f107e075844c7b520366e985b42ecfb6884f730d4300"
               required:
                 - transactionId
                 - signature

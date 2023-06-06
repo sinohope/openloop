@@ -6,6 +6,7 @@ Changes log, dates are displayed in UTC, shows in a reverse order.
 > 2023/06/06 by Darlzan
 
 - `/collateral/v1/settlement/tx/build` : add fields `cryptography` in the response.
+- `/collateral/v1/settlement/tx/broadcast` : update single fields `signature` to object type fields `signatures`, in order to adapt to the UTXO transactions.
 
 ### v0.9.8
 > 2023/06/01 by Darlzan
