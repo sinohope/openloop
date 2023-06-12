@@ -701,6 +701,7 @@ paths:
       summary: /collateral/v1/address/status
       security:
         - ApiKeyAuth: []
+          ApiNonce: []
           ApiSig: []
       requestBody:
         required: true
@@ -736,6 +737,7 @@ paths:
       summary: /collateral/v1/settlement
       security:
         - ApiKeyAuth: []
+          ApiNonce: []
           ApiSig: []
       requestBody:
         required: true
@@ -812,6 +814,7 @@ paths:
       summary: /collateral/v1/settlement/tx/build
       security:
         - ApiKeyAuth: []
+          ApiNonce: []
           ApiSig: []
       requestBody:
         required: true
@@ -910,6 +913,7 @@ paths:
       summary: /collateral/v1/settlement/tx/broadcast
       security:
         - ApiKeyAuth: []
+          ApiNonce: []
           ApiSig: []
       requestBody:
         required: true
@@ -958,6 +962,7 @@ paths:
       summary: /collateral/v1/transactions
       security:
         - ApiKeyAuth: []
+          ApiNonce: []
           ApiSig: []
       parameters:
         - name: txId
@@ -989,6 +994,7 @@ paths:
       summary: /collateral/v1/deposit/balance
       security:
         - ApiKeyAuth: []
+          ApiNonce: []
           ApiSig: []
       requestBody:
         required: true
@@ -1232,14 +1238,19 @@ components:
     ApiKeyAuth:
       type: apiKey
       in: header
-      name: X-API-Key
+      name: BIZ-API-KEY
       description: This API key is given to you by Sinohope when onboarding your
         exchange.
+    ApiNonce:
+      type: apiKey
+      in: header
+      name: BIZ-API-NONCE
+      description: A nonce value (timestamp) that is included in the data to be signed.
     ApiSig:
       type: apiKey
       in: header
-      name: X-API-SIG
-      description: signature of the request body using the secret_key which is provided by Sinohope when onboarding your exchange.
+      name: BIZ-API-SIGNATURE
+      description: signature of the request information(nonce,path,body) using the secret_key which is provided by Sinohope when onboarding your exchange.
   schemas:
     assetTransStatusItem:
       type: object
