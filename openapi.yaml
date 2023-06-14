@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: OpenLoop API
-  version: 0.9.9
+  version: 0.9.10
   description: 
     $ref: description.md
 tags:
@@ -729,6 +729,60 @@ paths:
                 required:
                   - status
 
+  /collateral/v1/settlement/address:
+    post:
+      tags:
+        - Exchange->Custody
+      description: Notify Sinohope of the exchange's settlement addresses for assets. It will need an initial post when the exchange join the OpenLoop, and make a update when some addresses need to be changed.
+      summary: /collateral/v1/settlement/address
+      security:
+        - ApiKeyAuth: []
+          ApiNonce: []
+          ApiSig: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                addresses:
+                  type: array
+                  description: the exchange's settlement addresses
+                  items:
+                    type: object
+                    properties:
+                      currency:
+                        $ref: '#/components/schemas/Currency'
+                      network:
+                        $ref: '#/components/schemas/Network'
+                      address:
+                        type: string
+                        description: the exchange's settlement address of the currency on the network.
+                      tag:
+                        type: string
+                        nullable: true
+                        description: Tag allocated by the exchange
+                    required:
+                      - currency
+                      - network
+                      - address
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Status of the processing, False/True (failed/success)
+                    example: true
+                required:
+                  - status
+
+
   /collateral/v1/settlement:
     post:
       tags:
@@ -805,6 +859,49 @@ paths:
                     description: Unique identifier for a settlement batch
                 required:
                   - settlementId
+
+  /collateral/v1/settlement/finish:
+    post:
+      tags:
+        - Exchange->Custody
+      description: Notify the Sinohope after the exchange settlement (for those assets transferred from the exchange to the CVA) is completed
+      summary: /collateral/v1/settlement/finish
+      security:
+        - ApiKeyAuth: []
+          ApiNonce: []
+          ApiSig: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                settlementId:
+                  type: string
+                  description: Unique identifier for a settlement batch
+                data:
+                  type: array
+                  description: Asset list transferred from the exchange to the CVA account 
+                  items:
+                    $ref: '#/components/schemas/assetTransStatusItem'
+              required:
+                - settlementId
+                - data
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Status of the settlement finish notification, False/True (failed/success)
+                    example: true
+                required:
+                  - status
 
   /collateral/v1/settlement/tx/build:
     post:

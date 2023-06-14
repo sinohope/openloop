@@ -2,6 +2,12 @@
 
 Changes log, dates are displayed in UTC, shows in a reverse order.
 
+### v0.9.10
+> 2023/06/14 by Darlzan
+
+- `/collateral/v1/settlement/address` : new added api.
+- `/collateral/v1/settlement/finish` : new added api.
+
 ### v0.9.9
 > 2023/06/06 by Darlzan
 
