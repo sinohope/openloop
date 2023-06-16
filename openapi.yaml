@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: OpenLoop API
-  version: 0.9.10
+  version: 0.9.11
   description: 
     $ref: description.md
 tags:
@@ -1187,6 +1187,9 @@ paths:
                 timeToLive:
                   type: number
                   description: The total TTL of this mpc business
+                transactionId:
+                  type: string
+                  description: Unique identifier for the transaction
               required:
                 - requestId
                 - userId
@@ -1197,6 +1200,7 @@ paths:
                 - cryptography
                 - message
                 - timeToLive
+                - transactionId
       responses:
         '200':
           description: Successful response

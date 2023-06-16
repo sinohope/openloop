@@ -2,6 +2,11 @@
 
 Changes log, dates are displayed in UTC, shows in a reverse order.
 
+### v0.9.11
+> 2023/06/16 by Darlzan
+
+- E-custody `/internal/v1/mpc/start` : add fields `transactionId`.
+
 ### v0.9.10
 > 2023/06/14 by Darlzan
 
