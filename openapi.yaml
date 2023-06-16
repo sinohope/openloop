@@ -1189,7 +1189,7 @@ paths:
                   description: The total TTL of this mpc business
                 transactionId:
                   type: string
-                  description: Unique identifier for the transaction
+                  description: Unique identifier for the related transaction
               required:
                 - requestId
                 - userId
