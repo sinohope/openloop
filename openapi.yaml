@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: OpenLoop API
-  version: 0.9.11
+  version: 0.9.12
   description: 
     $ref: description.md
 tags:
@@ -964,9 +964,108 @@ paths:
                         type: object
                         description: Unsigned transaction detail data, which needs to determine the data fields based on network, and txType. If it's an UTXO transaction, then the data should be a map , which key is a `vinId` that identifies the TransactionInput and the value is the TransactionInput.
                         properties:
-                          field1:
+                          asset:
                             type: string
-                            description: TODO...
+                            description: asset type in the transaction details
+                          decimal:
+                            type: number
+                            description: asset decimal needed in the transaction details
+                          currentTime:
+                            type: number
+                            description: unix timestamp in milliseconds
+                          expireTime:
+                            type: number
+                            description: expire timestamp in milliseconds
+                          expireBlockHeight:
+                            type: number
+                            description: expire block height
+                          referBlockHeight:
+                            type: number
+                            description: expire block height
+                          from:
+                            type: string
+                            description: from address
+                          fromTag:
+                            type: string
+                            description: from tag
+                          to:
+                            type: string
+                            description: to address
+                          toTag:
+                            type: string
+                            description: to tag
+                          amount:
+                            type: string
+                            description: the transfer amount
+                          fee:
+                            type: string
+                            description: 
+                          feeAsset:
+                            type: string
+                            description: 
+                          feePrice:
+                            type: string
+                            description: 
+                          feeStep:
+                            type: string
+                            description: 
+                          chainId:
+                            type: string
+                            description: 
+                          nonce:
+                            type: number
+                            description: 
+                          vin:
+                            type: object
+                            description: the input of an UTXO transaction. It's a map which key is a `vinId` and vaule is an object.
+                            additionalProperties:
+                              type: object
+                              properties:
+                                hash:
+                                  type: string
+                                  description: the hash of the input transaction
+                                voutIndex:
+                                  type: number
+                                  description: index of the input transaction
+                                address:
+                                  type: string
+                                  description: 
+                                amount:
+                                  type: string
+                                  description: 
+                                asset:
+                                  type: string
+                                  description: 
+                          vout:
+                            type: array
+                            description: the output of an UTXO transaction.
+                            items:
+                              type: object
+                              properties:
+                                asset:
+                                  type: string
+                                  description: 
+                                address:
+                                  type: string
+                                  description: 
+                                amount:
+                                  type: string
+                                  description: 
+                          funName:
+                            type: string
+                            description: contract type, e.g. `erc20`, `erc721`, `erc1155`
+                          params:
+                            type: array
+                            description: the parameters array of a contract call.
+                            items:
+                              type: object
+                              properties:
+                                value:
+                                  type: string
+                                  description: the parameter value
+                                type:
+                                  type: string
+                                  description: the type of the parameter value
                     required:
                       - transactionId
                       - network

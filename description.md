@@ -2,6 +2,11 @@
 
 Changes log, dates are displayed in UTC, shows in a reverse order.
 
+### v0.9.12
+> 2023/06/28 by Darlzan
+
+- `/collateral/v1/settlement/tx/build` : update the response.
+
 ### v0.9.11
 > 2023/06/16 by Darlzan
 
